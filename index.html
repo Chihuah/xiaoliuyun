@@ -66,8 +66,8 @@
       border-radius: 4px;
     }
   </style>
-  <!-- 改用 chinese-lunar 的 CDN -->
-  <script src="https://unpkg.com/chinese-lunar@latest/dist/chinese-lunar.min.js"></script>
+  <!-- 載入從 https://github.com/isee15/Lunar-Solar-Calendar-Converter 所下載的 lunar-solar-converter.js -->
+  <script src="lunar-solar-converter.js"></script>
 </head>
 <body>
   <div class="container">
@@ -125,14 +125,13 @@
     // 當網頁載入完成後，自動帶入預設值
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
-      // 使用 chinese-lunar 轉換公曆到農曆
-      // 這個函式庫提供 solarToLunar(year, month, day) 方法
-      const lunar = chineseLunar.solarToLunar(
-        today.getFullYear(),
-        today.getMonth() + 1,
-        today.getDate()
-      );
-      // 根據返回結果設定預設值（返回物件中 lunarMonth 和 lunarDay 分別代表農曆月和日）
+      
+      // 使用 Lunar-Solar-Calendar-Converter 轉換公曆到農曆
+      // 此函式庫提供兩個物件：Solar 和 LunarSolarConverter
+      var solar = new Solar(today.getFullYear(), today.getMonth() + 1, today.getDate());
+      var converter = new LunarSolarConverter();
+      var lunar = converter.solarToLunar(solar);
+      // 設定預設值，注意這邊依據函式庫返回的物件屬性名稱
       document.getElementById("lunarMonth").value = lunar.lunarMonth;
       document.getElementById("lunarDay").value = lunar.lunarDay;
       
@@ -146,4 +145,28 @@
 
       // 取得使用者輸入的農曆月份、日子及時辰（以地支數字表示）
       const month = parseInt(document.getElementById("lunarMonth").value);
-      const day = parseInt(doc
+      const day = parseInt(document.getElementById("lunarDay").value);
+      const hourIndex = parseInt(document.getElementById("lunarHour").value);
+
+      if (isNaN(month) || isNaN(day) || isNaN(hourIndex)) {
+        alert("請完整填寫所有欄位！");
+        return;
+      }
+
+      // 占卜計算步驟：
+      // 1. 以「大安」為起點，依農曆月份數計算出月份落點
+      let monthIndex = (month - 1) % 6;
+      // 2. 從月份落點開始，依日數計算出日子落點
+      let dayIndex = (monthIndex + (day - 1)) % 6;
+      // 3. 從日子落點開始，依時辰計算出最終結果
+      let resultIndex = (dayIndex + (hourIndex - 1)) % 6;
+
+      // 顯示占卜結果
+      const resultText = cycle[resultIndex];
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+      resultDiv.textContent = "占卜結果：" + resultText;
+    });
+  </script>
+</body>
+</html>
