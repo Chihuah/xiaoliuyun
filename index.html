@@ -125,7 +125,8 @@
     // 當網頁載入完成後，自動帶入預設值
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
-      
+      console.log("今天的日期物件：", today);
+      console.log("today.getDate() 的結果：", today.getDate());
       // 使用 Lunar-Solar-Calendar-Converter 轉換公曆到農曆
       // 此函式庫提供兩個物件：Solar 和 LunarSolarConverter
       var solar = new Solar(today.getFullYear(), today.getMonth() + 1, today.getDate());
