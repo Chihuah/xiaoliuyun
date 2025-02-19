@@ -72,6 +72,9 @@
 <body>
   <div class="container">
     <h1>小六壬占卜</h1>
+    <!-- 目前日期與時間的顯示區塊 -->
+    <div id="currentTimeDisplay" style="text-align: center; margin-bottom: 20px; font-size: 18px;"></div>
+
     <form id="divinationForm">
       <label for="lunarMonth">農曆月份 (正月請填1)：</label>
       <input type="number" id="lunarMonth" min="1" max="12" required>
@@ -102,9 +105,46 @@
   </div>
 
   <script>
+    // 定義更新日期與時間的函式
+    function updateCurrentDateTime() {
+      var now = new Date();
+      var solarYear = now.getFullYear();
+      var solarMonth = now.getMonth() + 1;
+      var solarDay = now.getDate();
+      var hours = now.getHours();
+      var minutes = now.getMinutes();
+      var seconds = now.getSeconds();
+      
+      // 格式化時間為 HH:MM:SS
+      var formattedTime = ("0" + hours).slice(-2) + ":" +
+                          ("0" + minutes).slice(-2) + ":" +
+                          ("0" + seconds).slice(-2);
+  
+      // 透過 LunarSolarConverter 轉換公曆到農曆
+      var solarObj = new Solar(solarYear, solarMonth, solarDay);
+      var converter = new LunarSolarConverter();
+      var lunarObj = converter.solarToLunar(solarObj);
+      var lunarYear = lunarObj.lunarYear;
+      var lunarMonth = lunarObj.lunarMonth;
+      var lunarDay = lunarObj.lunarDay;
+      var lunarLeap = lunarObj.isleap ? " (閏月)" : "";
+  
+      // 組合顯示字串
+      var displayStr = "國曆： " + solarYear + "年" + solarMonth + "月" + solarDay + "日 " + formattedTime +
+                       " | 農曆： " + lunarYear + "年" + lunarMonth + "月" + lunarDay + "日" + lunarLeap;
+  
+      document.getElementById("currentTimeDisplay").textContent = displayStr;
+    }
+  
+    // 確保 DOM 載入完成後再執行
+    document.addEventListener("DOMContentLoaded", function() {
+      updateCurrentDateTime();
+      setInterval(updateCurrentDateTime, 1000);
+    });
+    
     // 六個掌訣的位置循環：大安、留連、速喜、赤口、小吉、空亡
     const cycle = ["大安", "留連", "速喜", "赤口", "小吉", "空亡"];
-
+    
     // 根據目前系統時間，計算所屬的中國時辰（返回 1～12）
     function getChineseHourIndex(date) {
       const h = date.getHours();
