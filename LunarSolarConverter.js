@@ -8,10 +8,10 @@ function Lunar() {
     this.lunarYear = 0;
 }
 
-function Solar() {
-    this.solarDay = 0;
-    this.solarMonth = 0;
-    this.solarYear = 0;
+function Solar(year, month, day) {
+    this.solarYear = year;
+    this.solarMonth = month;
+    this.solarDay = day;
 }
 
 function LunarSolarConverter() {
