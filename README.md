@@ -17,23 +17,6 @@
    如有需要，你可以修改輸入數值。  
    點擊「開始占卜」後，網頁會依據「小六壬」算法計算出最終的占卜結果，並顯示在頁面下方。
 
-## 部署到 GitHub Pages
-
-此專案為純靜態網頁，非常適合部署到 GitHub Pages。部署步驟如下：
-
-1. **建立 GitHub Repository**  
-   - 登入 GitHub 並建立一個新的 repository（例如：`xiaoliuyun`）。
-   - 將所有檔案（例如 `index.html`、CSS、JavaScript 等）推送到該 repository 的根目錄。
-
-2. **啟用 GitHub Pages**  
-   - 進入 repository 的 **Settings** 頁面。
-   - 滾動到 **Pages** 區塊。
-   - 在 **Source** 下拉選單中，選擇 `main branch`（或你存放檔案的分支），並選擇 `/(root)` 資料夾。
-   - 點擊 **Save** 保存設定後，GitHub Pages 會提供一個網址，例如 `https://<你的GitHub使用者名稱>.github.io/<repository名稱>/`。
-
-3. **存取網站**  
-   使用瀏覽器開啟 GitHub Pages 提供的網址，即可看到你的占卜網頁。
-
 ## 技術細節
 
 - **前端技術**：HTML、CSS、JavaScript。
