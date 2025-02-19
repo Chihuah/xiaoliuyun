@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小六壬占卜</title>
+  <style>
+    body {
+      font-family: "微軟正黑體", sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #007acc;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #d9534f;
+      border: 2px dashed #d9534f;
+      border-radius: 4px;
+    }
+  </style>
+  <!-- 引入 solarlunar 函式庫，用來做公轉農轉換 -->
+  <script src="https://cdn.jsdelivr.net/npm/solarlunar@1.1.1/dist/solarlunar.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>小六壬占卜</h1>
+    <form id="divinationForm">
+      <label for="lunarMonth">農曆月份 (正月請填1)：</label>
+      <input type="number" id="lunarMonth" min="1" max="12" required>
+
+      <label for="lunarDay">農曆日子：</label>
+      <input type="number" id="lunarDay" min="1" max="31" required>
+
+      <label for="lunarHour">時辰 (請選擇地支)：</label>
+      <select id="lunarHour" required>
+        <option value="" disabled>請選擇</option>
+        <option value="1">子 (23:00-01:00)</option>
+        <option value="2">丑 (01:00-03:00)</option>
+        <option value="3">寅 (03:00-05:00)</option>
+        <option value="4">卯 (05:00-07:00)</option>
+        <option value="5">辰 (07:00-09:00)</option>
+        <option value="6">巳 (09:00-11:00)</option>
+        <option value="7">午 (11:00-13:00)</option>
+        <option value="8">未 (13:00-15:00)</option>
+        <option value="9">申 (15:00-17:00)</option>
+        <option value="10">酉 (17:00-19:00)</option>
+        <option value="11">戌 (19:00-21:00)</option>
+        <option value="12">亥 (21:00-23:00)</option>
+      </select>
+
+      <button type="submit">開始占卜</button>
+    </form>
+    <div id="result" class="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    // 六個掌訣的位置循環：大安、留連、速喜、赤口、小吉、空亡
+    const cycle = ["大安", "留連", "速喜", "赤口", "小吉", "空亡"];
+
+    // 根據目前系統時間，計算所屬的中國時辰（返回 1～12）
+    function getChineseHourIndex(date) {
+      const h = date.getHours();
+      // 注意：子時為 23:00 ~ 00:59
+      if (h >= 23 || h < 1) return 1;
+      else if (h >= 1 && h < 3) return 2;
+      else if (h >= 3 && h < 5) return 3;
+      else if (h >= 5 && h < 7) return 4;
+      else if (h >= 7 && h < 9) return 5;
+      else if (h >= 9 && h < 11) return 6;
+      else if (h >= 11 && h < 13) return 7;
+      else if (h >= 13 && h < 15) return 8;
+      else if (h >= 15 && h < 17) return 9;
+      else if (h >= 17 && h < 19) return 10;
+      else if (h >= 19 && h < 21) return 11;
+      else if (h >= 21 && h < 23) return 12;
+    }
+
+    // 當網頁載入完成後，自動帶入預設值
+    document.addEventListener("DOMContentLoaded", function() {
+      const today = new Date();
+      // 利用 solarlunar 轉換公曆到農曆
+      const lunar = solarlunar.solar2lunar(today.getFullYear(), today.getMonth() + 1, today.getDate());
+      // 設定農曆月份與日子預設值
+      document.getElementById("lunarMonth").value = lunar.lMonth;
+      document.getElementById("lunarDay").value = lunar.lDay;
+      
+      // 設定時辰預設值：依據目前時間計算所屬的中國時辰
+      const chHour = getChineseHourIndex(today);
+      document.getElementById("lunarHour").value = chHour;
+    });
+
+    document.getElementById("divinationForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      // 取得使用者輸入的農曆月份、日子及時辰（以地支數字表示）
+      const month = parseInt(document.getElementById("lunarMonth").value);
+      const day = parseInt(document.getElementById("lunarDay").value);
+      const hourIndex = parseInt(document.getElementById("lunarHour").value);
+
+      if (isNaN(month) || isNaN(day) || isNaN(hourIndex)) {
+        alert("請完整填寫所有欄位！");
+        return;
+      }
+
+      // 第一階段：以大安作起點計算月份落點
+      // 大安固定為索引 0，從大安開始數 (month - 1) 次
+      let monthIndex = (0 + (month - 1)) % 6;  // 正月起始為大安
+
+      // 第二階段：以月份落點作為起點，計算日子落點
+      let dayIndex = (monthIndex + (day - 1)) % 6;
+
+      // 第三階段：以日子落點作為起點，計算時辰落點
+      let resultIndex = (dayIndex + (hourIndex - 1)) % 6;
+
+      // 取得最終結果
+      const resultText = cycle[resultIndex];
+
+      // 顯示結果
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+      resultDiv.textContent = "占卜結果：" + resultText;
+    });
+  </script>
+</body>
+</html>
