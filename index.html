@@ -66,8 +66,8 @@
       border-radius: 4px;
     }
   </style>
-  <!-- 改用 lunar-calendar 的 CDN (unpkg) -->
-  <script src="https://unpkg.com/lunar-calendar/dist/lunar-calendar.min.js"></script>
+  <!-- 改用 chinese-lunar 的 CDN -->
+  <script src="https://unpkg.com/chinese-lunar@latest/dist/chinese-lunar.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -125,15 +125,14 @@
     // 當網頁載入完成後，自動帶入預設值
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
-      // 使用 lunar-calendar 轉換公曆到農曆
-      // 注意：此函式庫的函式名稱為 solarToLunar(year, month, day)
-      // 根據函式庫文件，返回的物件屬性可能為 lunarMonth 與 lunarDay
-      const lunar = lunarCalendar.solarToLunar(
+      // 使用 chinese-lunar 轉換公曆到農曆
+      // 這個函式庫提供 solarToLunar(year, month, day) 方法
+      const lunar = chineseLunar.solarToLunar(
         today.getFullYear(),
         today.getMonth() + 1,
         today.getDate()
       );
-      // 根據返回結果設置預設值（若屬性名稱不同，請依照文件調整）
+      // 根據返回結果設定預設值（返回物件中 lunarMonth 和 lunarDay 分別代表農曆月和日）
       document.getElementById("lunarMonth").value = lunar.lunarMonth;
       document.getElementById("lunarDay").value = lunar.lunarDay;
       
@@ -147,29 +146,4 @@
 
       // 取得使用者輸入的農曆月份、日子及時辰（以地支數字表示）
       const month = parseInt(document.getElementById("lunarMonth").value);
-      const day = parseInt(document.getElementById("lunarDay").value);
-      const hourIndex = parseInt(document.getElementById("lunarHour").value);
-
-      if (isNaN(month) || isNaN(day) || isNaN(hourIndex)) {
-        alert("請完整填寫所有欄位！");
-        return;
-      }
-
-      // 第一階段：以大安作起點計算月份落點
-      let monthIndex = (month - 1) % 6;
-
-      // 第二階段：以月份落點作為起點，計算日子落點
-      let dayIndex = (monthIndex + (day - 1)) % 6;
-
-      // 第三階段：以日子落點作為起點，計算時辰落點
-      let resultIndex = (dayIndex + (hourIndex - 1)) % 6;
-
-      // 顯示最終結果
-      const resultText = cycle[resultIndex];
-      const resultDiv = document.getElementById("result");
-      resultDiv.style.display = "block";
-      resultDiv.textContent = "占卜結果：" + resultText;
-    });
-  </script>
-</body>
-</html>
+      const day = parseInt(doc
