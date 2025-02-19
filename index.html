@@ -66,7 +66,7 @@
       border-radius: 4px;
     }
   </style>
-  <!-- 引入 solarlunar 函式庫，用來做公轉農轉換 -->
+  <!-- 改用 lunar-calendar 的 CDN (unpkg) -->
   <script src="https://unpkg.com/lunar-calendar/dist/lunar-calendar.min.js"></script>
 </head>
 <body>
@@ -108,7 +108,6 @@
     // 根據目前系統時間，計算所屬的中國時辰（返回 1～12）
     function getChineseHourIndex(date) {
       const h = date.getHours();
-      // 注意：子時為 23:00 ~ 00:59
       if (h >= 23 || h < 1) return 1;
       else if (h >= 1 && h < 3) return 2;
       else if (h >= 3 && h < 5) return 3;
@@ -126,11 +125,17 @@
     // 當網頁載入完成後，自動帶入預設值
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
-      // 利用 solarlunar 轉換公曆到農曆
-      const lunar = solarlunar.solar2lunar(today.getFullYear(), today.getMonth() + 1, today.getDate());
-      // 設定農曆月份與日子預設值
-      document.getElementById("lunarMonth").value = lunar.lMonth;
-      document.getElementById("lunarDay").value = lunar.lDay;
+      // 使用 lunar-calendar 轉換公曆到農曆
+      // 注意：此函式庫的函式名稱為 solarToLunar(year, month, day)
+      // 根據函式庫文件，返回的物件屬性可能為 lunarMonth 與 lunarDay
+      const lunar = lunarCalendar.solarToLunar(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        today.getDate()
+      );
+      // 根據返回結果設置預設值（若屬性名稱不同，請依照文件調整）
+      document.getElementById("lunarMonth").value = lunar.lunarMonth;
+      document.getElementById("lunarDay").value = lunar.lunarDay;
       
       // 設定時辰預設值：依據目前時間計算所屬的中國時辰
       const chHour = getChineseHourIndex(today);
@@ -151,8 +156,7 @@
       }
 
       // 第一階段：以大安作起點計算月份落點
-      // 大安固定為索引 0，從大安開始數 (month - 1) 次
-      let monthIndex = (0 + (month - 1)) % 6;  // 正月起始為大安
+      let monthIndex = (month - 1) % 6;
 
       // 第二階段：以月份落點作為起點，計算日子落點
       let dayIndex = (monthIndex + (day - 1)) % 6;
@@ -160,10 +164,8 @@
       // 第三階段：以日子落點作為起點，計算時辰落點
       let resultIndex = (dayIndex + (hourIndex - 1)) % 6;
 
-      // 取得最終結果
+      // 顯示最終結果
       const resultText = cycle[resultIndex];
-
-      // 顯示結果
       const resultDiv = document.getElementById("result");
       resultDiv.style.display = "block";
       resultDiv.textContent = "占卜結果：" + resultText;
