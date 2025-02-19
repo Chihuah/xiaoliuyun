@@ -120,7 +120,7 @@
                           ("0" + minutes).slice(-2) + ":" +
                           ("0" + seconds).slice(-2);
   
-      // 透過 LunarSolarConverter 轉換公曆到農曆
+      // 透過 LunarSolarConverter 轉換國曆到農曆
       var solarObj = new Solar(solarYear, solarMonth, solarDay);
       var converter = new LunarSolarConverter();
       var lunarObj = converter.SolarToLunar(solarObj);
@@ -131,9 +131,9 @@
   
       // 組合顯示字串
       var displayStr = "國曆： " + solarYear + "年" + solarMonth + "月" + solarDay + "日 " + formattedTime +
-                       " | 農曆： " + lunarYear + "年" + lunarMonth + "月" + lunarDay + "日" + lunarLeap;
+                       "<br>農曆： " + lunarYear + "年" + lunarMonth + "月" + lunarDay + "日" + lunarLeap;
   
-      document.getElementById("currentTimeDisplay").textContent = displayStr;
+      document.getElementById("currentTimeDisplay").innerHTML = displayStr;
     }
   
     // 確保 DOM 載入完成後再執行
@@ -166,7 +166,7 @@
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
 
-      // 使用 Lunar-Solar-Calendar-Converter 轉換公曆到農曆
+      // 使用 Lunar-Solar-Calendar-Converter 轉換曆到農曆
       // 此函式庫提供兩個物件：Solar 和 LunarSolarConverter
       var solar = new Solar(today.getFullYear(), today.getMonth() + 1, today.getDate());
       var converter = new LunarSolarConverter();
