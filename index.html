@@ -130,9 +130,10 @@
       var lunarLeap = lunarObj.isleap ? " (閏月)" : "";
   
       // 組合顯示字串
-      var displayStr = "國曆： " + solarYear + "年" + solarMonth + "月" + solarDay + "日 " + formattedTime +
-                       "<br>農曆： " + lunarYear + "年" + lunarMonth + "月" + lunarDay + "日" + lunarLeap;
-  
+      var displayStr = "當前時刻： " + formattedTime + "<br>" +
+                     "國曆： " + solarYear + "年" + solarMonth + "月" + solarDay + "日" + "<br>" +
+                     "農曆： " + lunarYear + "年" + lunarMonth + "月" + lunarDay + "日" + lunarLeap + "<br>" +
+                     "<hr>";
       document.getElementById("currentTimeDisplay").innerHTML = displayStr;
     }
   
