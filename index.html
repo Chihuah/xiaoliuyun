@@ -99,7 +99,7 @@
         <option value="12">亥 (21:00-23:00)</option>
       </select>
 
-      <button type="submit">開始占卜</button>
+      <button type="submit">測算占卜</button>
     </form>
     <div id="result" class="result" style="display:none;"></div>
   </div>
@@ -130,10 +130,9 @@
       var lunarLeap = lunarObj.isleap ? " (閏月)" : "";
   
       // 組合顯示字串
-      var displayStr = "當前時刻： " + formattedTime + "<br>" +
-                     "國曆： " + solarYear + "年" + solarMonth + "月" + solarDay + "日" + "<br>" +
+      var displayStr = "國曆： " + solarYear + "年" + solarMonth + "月" + solarDay + "日" + "<br>" +
                      "農曆： " + lunarYear + "年" + lunarMonth + "月" + lunarDay + "日" + lunarLeap + "<br>" +
-                     "<hr>";
+                     "當前時刻： " + formattedTime + "<br><hr>";
       document.getElementById("currentTimeDisplay").innerHTML = displayStr;
     }
   
