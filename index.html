@@ -77,7 +77,13 @@
 </head>
 <body>
   <div class="container">
-    <h1>小六壬占卜</h1>
+    <h1 id="pageTitle">小六壬占卜</h1>
+    <div style="text-align:right;">
+      <select id="langSelect" style="margin-bottom:10px;">
+        <option value="zh">中文</option>
+        <option value="en">English</option>
+      </select>
+    </div>
     <!-- 目前日期與時間的顯示區塊 -->
     <div id="currentTimeDisplay" style="text-align: center; margin-bottom: 20px; font-size: 18px;"></div>
 
@@ -133,6 +139,117 @@
   </div>
 
   <script>
+    const i18n = {
+      zh: {
+        title: '小六壬占卜',
+        modeLabel: '占卜模式：',
+        simple: '簡答',
+        question: '問事',
+        advanced: '深解',
+        questionLabel: '所問問題：',
+        career: '事業',
+        love: '愛情',
+        health: '健康',
+        wealth: '偏財運',
+        lunarMonth: '農曆月份 (正月請填1)：',
+        lunarDay: '農曆日子：',
+        lunarHour: '時辰 (請選擇地支)：',
+        choose: '請選擇',
+        startBtn: '測算占卜',
+        copy: '複製結果',
+        history: '近期紀錄',
+        disclaimer: '本網頁結果僅供參考或娛樂使用，請勿過度依賴或迷信。',
+        resultPrefix: '占卜結果：',
+        initialPrefix: '初始：',
+        currentPrefix: '當下：',
+        fillAlert: '請完整填寫所有欄位！',
+        selectAlert: '請選擇所問問題類型',
+        copied: '已複製到剪貼簿',
+        modeSimple: '簡答',
+        modeQuestion: '問事',
+        modeAdvanced: '深解',
+        solar: '國曆：',
+        lunar: '農曆：',
+        time: '當前時刻：',
+        leap: ' (閏月)'
+      },
+      en: {
+        title: 'Xiao Liu Ren Divination',
+        modeLabel: 'Mode:',
+        simple: 'Simple',
+        question: 'Question',
+        advanced: 'Advanced',
+        questionLabel: 'Question Type:',
+        career: 'Career',
+        love: 'Love',
+        health: 'Health',
+        wealth: 'Wealth',
+        lunarMonth: 'Lunar Month (1 for first month):',
+        lunarDay: 'Lunar Day:',
+        lunarHour: 'Hour (choose branch):',
+        choose: 'Select',
+        startBtn: 'Start Divination',
+        copy: 'Copy Result',
+        history: 'Recent History',
+        disclaimer: 'Results are for reference or entertainment only. Do not rely on them.',
+        resultPrefix: 'Result:',
+        initialPrefix: 'Initial:',
+        currentPrefix: 'Current:',
+        fillAlert: 'Please complete all fields!',
+        selectAlert: 'Please select a question type',
+        copied: 'Copied to clipboard',
+        modeSimple: 'Simple',
+        modeQuestion: 'Question',
+        modeAdvanced: 'Advanced',
+        solar: 'Solar:',
+        lunar: 'Lunar:',
+        time: 'Time:',
+        leap: ' (Leap)'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'zh';
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      document.documentElement.lang = lang;
+      const t = i18n[lang];
+      document.getElementById('pageTitle').innerText = t.title;
+      document.title = t.title;
+      document.querySelector('label[for="modeSelect"]').innerText = t.modeLabel;
+      const modeSelect = document.getElementById('modeSelect');
+      modeSelect.options[0].text = t.simple;
+      modeSelect.options[1].text = t.question;
+      modeSelect.options[2].text = t.advanced;
+      const qLabel = document.getElementById('questionLabel');
+      qLabel.innerText = t.questionLabel;
+      const qSelect = document.getElementById('questionType');
+      qSelect.options[0].text = t.career;
+      qSelect.options[1].text = t.love;
+      qSelect.options[2].text = t.health;
+      qSelect.options[3].text = t.wealth;
+      document.querySelector('label[for="lunarMonth"]').innerText = t.lunarMonth;
+      document.querySelector('label[for="lunarDay"]').innerText = t.lunarDay;
+      document.querySelector('label[for="lunarHour"]').innerText = t.lunarHour;
+      document.querySelector('#lunarHour option[disabled]').text = t.choose;
+      document.querySelector('#divinationForm button[type="submit"]').innerText = t.startBtn;
+      document.getElementById('copyBtn').innerText = t.copy;
+      document.querySelector('#historySection h2').innerText = t.history;
+      document.querySelector('.disclaimer').innerText = t.disclaimer;
+      document.getElementById('langSelect').value = lang;
+
+      renderHistory();
+      const resultDiv = document.getElementById('result');
+      if (resultDiv.style.display === 'block') {
+        document.getElementById('divinationForm').dispatchEvent(new Event('submit'));
+      }
+    }
+
+    document.getElementById('langSelect').addEventListener('change', function(){
+      applyLanguage(this.value);
+    });
+
     // 定義更新日期與時間的函式
     function updateCurrentDateTime() {
       var now = new Date();
@@ -158,9 +275,16 @@
       var lunarLeap = lunarObj.isleap ? " (閏月)" : "";
   
       // 組合顯示字串
-      var displayStr = "國曆： " + solarYear + "年" + solarMonth + "月" + solarDay + "日" + "<br>" +
-                     "農曆： " + lunarYear + "年" + lunarMonth + "月" + lunarDay + "日" + lunarLeap + "<br>" +
-                     "當前時刻： " + formattedTime + "<br><hr>";
+      var displayStr;
+      if (currentLang === 'en') {
+        displayStr = i18n.en.solar + ' ' + solarYear + '-' + solarMonth + '-' + solarDay + '<br>' +
+                      i18n.en.lunar + ' ' + lunarYear + '-' + lunarMonth + '-' + lunarDay + (lunarLeap ? i18n.en.leap : '') + '<br>' +
+                      i18n.en.time + ' ' + formattedTime + '<br><hr>';
+      } else {
+        displayStr = i18n.zh.solar + ' ' + solarYear + '年' + solarMonth + '月' + solarDay + '日' + '<br>' +
+                      i18n.zh.lunar + ' ' + lunarYear + '年' + lunarMonth + '月' + lunarDay + '日' + (lunarLeap ? i18n.zh.leap : '') + '<br>' +
+                      i18n.zh.time + ' ' + formattedTime + '<br><hr>';
+      }
       document.getElementById("currentTimeDisplay").innerHTML = displayStr;
     }
   
@@ -168,96 +292,187 @@
     document.addEventListener("DOMContentLoaded", function() {
       updateCurrentDateTime();
       setInterval(updateCurrentDateTime, 1000);
+      applyLanguage(currentLang);
     });
     
     // 六個掌訣的位置循環：大安、留連、速喜、赤口、小吉、空亡
     const cycle = ["大安", "留連", "速喜", "赤口", "小吉", "空亡"];
 
     const simpleDesc = {
-      "大安": "意義： 吉利、安穩、諸事順利。\n解釋： 代表事情開始順利，運勢平穩安定。適合開始新的計畫、追求目標。如果問出行，表示平安順利；問感情，表示穩定發展；問財運，表示有小幅度的進帳或穩定。總體而言，是個好的兆頭，但仍需努力耕耘。",
-      "留連": "意義： 阻礙、延遲、停滯不前。\n解釋： 表示事情進展緩慢，遇到阻礙或困境。可能會有拖延、變卦的情況發生。如果問出行，可能會有延誤或不順；問感情，表示關係停滯不前，需要耐心經營；問財運，表示投資不利或資金周轉困難。此時不宜輕舉妄動，應謹慎應對，等待時機。",
-      "速喜": "意義： 喜慶、快速、好消息。\n解釋： 代表好事將近，進展快速且充滿希望。容易收到好消息，心情愉悅。如果問出行，表示順利快速到達；問感情，表示進展迅速，有機會開花結果；問財運，表示有意外之財或短期內可獲利。宜把握機會，積極行動。",
-      "赤口": "意義： 口舌是非、爭執、不順利。\n解釋： 表示容易發生口角、爭執，或遇到不愉快的事情。人際關係可能出現問題，需要謹言慎行，避免衝突。如果問出行，可能會有不順或意外狀況；問感情，表示容易有爭吵或誤會；問財運，表示容易因口舌是非而破財。此時應保持冷靜，以和為貴。",
-      "小吉": "意義： 小有收穫、平順、吉祥。\n解釋： 代表事情進展平穩，雖然沒有大喜大悲，但能順利達成目標，並有一些小的收穫。是個安穩祥和的局面。如果問出行，表示平安順利，但可能較為奔波；問感情，表示關係穩定，但可能缺乏激情；問財運，表示有小幅度的進帳。整體而言，是個不錯的結果。",
-      "空亡": "意義： 落空、虛無、無結果。\n解釋： 表示所問之事可能沒有結果，或者期望落空。計劃難以實現，努力可能白費。如果問出行，表示不宜出行或無功而返；問感情，表示緣分較淺或難以發展；問財運，表示投資失利或沒有收益。此時應調整心態，不必過於執著，順其自然。"
+      zh: {
+        "大安": "意義： 吉利、安穩、諸事順利。\n解釋： 代表事情開始順利，運勢平穩安定。適合開始新的計畫、追求目標。如果問出行，表示平安順利；問感情，表示穩定發展；問財運，表示有小幅度的進帳或穩定。總體而言，是個好的兆頭，但仍需努力耕耘。",
+        "留連": "意義： 阻礙、延遲、停滯不前。\n解釋： 表示事情進展緩慢，遇到阻礙或困境。可能會有拖延、變卦的情況發生。如果問出行，可能會有延誤或不順；問感情，表示關係停滯不前，需要耐心經營；問財運，表示投資不利或資金周轉困難。此時不宜輕舉妄動，應謹慎應對，等待時機。",
+        "速喜": "意義： 喜慶、快速、好消息。\n解釋： 代表好事將近，進展快速且充滿希望。容易收到好消息，心情愉悅。如果問出行，表示順利快速到達；問感情，表示進展迅速，有機會開花結果；問財運，表示有意外之財或短期內可獲利。宜把握機會，積極行動。",
+        "赤口": "意義： 口舌是非、爭執、不順利。\n解釋： 表示容易發生口角、爭執，或遇到不愉快的事情。人際關係可能出現問題，需要謹言慎行，避免衝突。如果問出行，可能會有不順或意外狀況；問感情，表示容易有爭吵或誤會；問財運，表示容易因口舌是非而破財。此時應保持冷靜，以和為貴。",
+        "小吉": "意義： 小有收穫、平順、吉祥。\n解釋： 代表事情進展平穩，雖然沒有大喜大悲，但能順利達成目標，並有一些小的收穫。是個安穩祥和的局面。如果問出行，表示平安順利，但可能較為奔波；問感情，表示關係穩定，但可能缺乏激情；問財運，表示有小幅度的進帳。整體而言，是個不錯的結果。",
+        "空亡": "意義： 落空、虛無、無結果。\n解釋： 表示所問之事可能沒有結果，或者期望落空。計劃難以實現，努力可能白費。如果問出行，表示不宜出行或無功而返；問感情，表示緣分較淺或難以發展；問財運，表示投資失利或沒有收益。此時應調整心態，不必過於執著，順其自然。"
+      },
+      en: {
+        "大安": "Meaning: Auspicious and stable.\nExplanation: Things start smoothly and luck is steady. Good for new plans and goals. Travel is safe; relationships develop steadily; finances show small gains. Overall a good sign but still requires effort.",
+        "留連": "Meaning: Obstacles and delays.\nExplanation: Progress is slow and hindered. Travel may be delayed; relationships stagnate; finances face difficulties. Act cautiously and wait for the right moment.",
+        "速喜": "Meaning: Joy and quick success.\nExplanation: Good news is near and progress is fast. Travel goes smoothly; relationships advance quickly; unexpected profits may come. Seize opportunities actively.",
+        "赤口": "Meaning: Disputes and misfortune.\nExplanation: Prone to quarrels or unpleasant events. Be careful with words to avoid conflicts. Travel may face problems; relationships may have arguments; financial loss may occur due to disputes. Remain calm.",
+        "小吉": "Meaning: Minor gains and smooth sailing.\nExplanation: Things proceed steadily with some small achievements. Travel is safe though busy; relationships stable but lacking passion; finances show small income. Overall positive.",
+        "空亡": "Meaning: Nothing comes of it.\nExplanation: The matter may have no result and hopes may fall through. Plans are hard to realize and efforts may be wasted. Travel is inadvisable; relationships hard to develop; investments yield nothing. Adjust your mindset."
+      }
     };
 
     const questionDesc = {
-      "大安": {
-        "career": "工作穩定順利，可能會出現新的機會或合作夥伴。適合規劃長期發展，進行穩健的投資。若有求職，有機會獲得滿意的職位。",
-        "love": "感情關係穩定和諧，單身者可能遇到值得發展的對象。已婚或有伴侶者感情更加深厚。適合談婚論嫁或規劃未來。",
-        "health": "身體狀況良好，精神飽滿。若有舊疾，病情趨於穩定或好轉。注意保持規律作息和健康飲食即可。",
-        "wealth": "偏財運佳，可能會有一些意想不到的小收入，例如中獎、分紅、禮物等。投資方面可以嘗試一些穩健型的項目，有機會獲利。整體而言，是個偏財運不錯的時期，但切忌貪心冒進。"
+      zh: {
+        "大安": {
+          "career": "工作穩定順利，可能會出現新的機會或合作夥伴。適合規劃長期發展，進行穩健的投資。若有求職，有機會獲得滿意的職位。",
+          "love": "感情關係穩定和諧，單身者可能遇到值得發展的對象。已婚或有伴侶者感情更加深厚。適合談婚論嫁或規劃未來。",
+          "health": "身體狀況良好，精神飽滿。若有舊疾，病情趨於穩定或好轉。注意保持規律作息和健康飲食即可。",
+          "wealth": "偏財運佳，可能會有一些意想不到的小收入，例如中獎、分紅、禮物等。投資方面可以嘗試一些穩健型的項目，有機會獲利。整體而言，是個偏財運不錯的時期，但切忌貪心冒進。"
+        },
+        "留連": {
+          "career": "工作進展緩慢，遇到瓶頸或阻礙。可能會有小人作祟或內部競爭加劇。不宜輕舉妄動，保守應對為宜。若有合約或決策，需謹慎考慮，避免盲目行動。",
+          "love": "感情關係停滯不前，缺乏進展。單身者難有突破，已婚或有伴侶者可能感到平淡或有隔閡。需要耐心溝通，多關心對方。",
+          "health": "身體可能出現小狀況，如疲勞、精神不濟。需注意休息，避免過度勞累。舊疾可能復發或加重，需多加留意。",
+          "wealth": "偏財運較差，不宜進行投機取巧的行為，容易虧損。投資方面應謹慎保守，避免高風險項目。短期內難有意外之財，宜安守本分，努力工作賺取正財。"
+        },
+        "速喜": {
+          "career": "事業發展迅速，可能會獲得意外的機會或成功。適合積極拓展業務，勇於嘗試新事物。若有面試或提案，成功的機率較高。",
+          "love": "感情進展快速，單身者容易遇到心儀的對象，且發展順利。已婚或有伴侶者感情甜蜜升溫，可能有驚喜或浪漫的事情發生。",
+          "health": "身體狀況良好，精力充沛。小病痛很快就能痊癒。但要注意避免因過度興奮而忽略身體。",
+          "wealth": "偏財運非常旺盛，容易獲得突如其來的財富，例如中大獎、獲得豐厚的意外之財等。投資方面眼光獨到，容易抓住機會獲利。此時宜積極把握偏財運的機會，但也要注意見好就收。"
+        },
+        "赤口": {
+          "career": "工作中容易出現口舌是非、爭執或誤會。人際關係緊張，可能與同事或上司發生不愉快。需謹言慎行，避免捲入紛爭。決策方面容易出錯，宜三思而後行。",
+          "love": "感情關係容易出現爭吵、誤會或不信任。單身者可能遇到爛桃花或被流言蜚語困擾。已婚或有伴侶者更需注意溝通方式，避免惡語傷人。",
+          "health": "容易因為情緒波動而影響健康，如出現上火、口腔潰瘍等問題。注意控制情緒，保持心情平和。也要注意飲食，避免辛辣刺激的食物。",
+          "wealth": "偏財運不佳，容易因為口舌是非或人際關係問題而破財。投資方面容易因聽信小道消息而做出錯誤決策，導致損失。切記不要輕易相信他人的投資建議，謹防詐騙。"
+        },
+        "小吉": {
+          "career": "事業發展平穩順利，能達成既定目標，並獲得一些小的成就或回報。適合按部就班地工作，穩紮穩打。人際關係良好，能得到同事或貴人的幫助。",
+          "love": "感情關係穩定和諧，雖然沒有太大的驚喜，但能感受到溫馨和幸福。單身者可能有機會認識新的朋友，但發展成戀人的機會不大。已婚或有伴侶者感情平淡而長久。",
+          "health": "身體狀況大致良好，小病小痛很快就能恢復。注意保持健康的生活習慣即可。",
+          "wealth": "偏財運平平，偶爾可能會有一些小的意外之財，但金額不大。投資方面宜選擇穩健的項目，不宜過於激進。整體而言，偏財運屬於穩定的小收益，不會有太大的驚喜。"
+        },
+        "空亡": {
+          "career": "事業運勢低迷，所規劃的事項可能難以實現，努力付出可能沒有預期的回報。不適合進行大的投資或變動。若有合作或交易，需謹防空穴來風或虛假承諾。",
+          "love": "感情方面可能沒有結果，單身者難以遇到合適的對象，即使遇到也可能無疾而終。已婚或有伴侶者感情可能趨於平淡或冷淡，缺乏激情。",
+          "health": "身體狀況欠佳，容易感到疲憊、精神不振。抵抗力下降，容易生病。若有疾病，可能治療效果不佳或病情反覆。需特別注意休息和調養。",
+          "wealth": "偏財運極差，幾乎沒有意外之財的機會。投資方面非常不利，容易血本無歸。切記不要抱有僥倖心理，避免任何投機行為。此時宜將重心放在正財上，努力工作才是正道。"
+        }
       },
-      "留連": {
-        "career": "工作進展緩慢，遇到瓶頸或阻礙。可能會有小人作祟或內部競爭加劇。不宜輕舉妄動，保守應對為宜。若有合約或決策，需謹慎考慮，避免盲目行動。",
-        "love": "感情關係停滯不前，缺乏進展。單身者難有突破，已婚或有伴侶者可能感到平淡或有隔閡。需要耐心溝通，多關心對方。",
-        "health": "身體可能出現小狀況，如疲勞、精神不濟。需注意休息，避免過度勞累。舊疾可能復發或加重，需多加留意。",
-        "wealth": "偏財運較差，不宜進行投機取巧的行為，容易虧損。投資方面應謹慎保守，避免高風險項目。短期內難有意外之財，宜安守本分，努力工作賺取正財。"
-      },
-      "速喜": {
-        "career": "事業發展迅速，可能會獲得意外的機會或成功。適合積極拓展業務，勇於嘗試新事物。若有面試或提案，成功的機率較高。",
-        "love": "感情進展快速，單身者容易遇到心儀的對象，且發展順利。已婚或有伴侶者感情甜蜜升溫，可能有驚喜或浪漫的事情發生。",
-        "health": "身體狀況良好，精力充沛。小病痛很快就能痊癒。但要注意避免因過度興奮而忽略身體。",
-        "wealth": "偏財運非常旺盛，容易獲得突如其來的財富，例如中大獎、獲得豐厚的意外之財等。投資方面眼光獨到，容易抓住機會獲利。此時宜積極把握偏財運的機會，但也要注意見好就收。"
-      },
-      "赤口": {
-        "career": "工作中容易出現口舌是非、爭執或誤會。人際關係緊張，可能與同事或上司發生不愉快。需謹言慎行，避免捲入紛爭。決策方面容易出錯，宜三思而後行。",
-        "love": "感情關係容易出現爭吵、誤會或不信任。單身者可能遇到爛桃花或被流言蜚語困擾。已婚或有伴侶者更需注意溝通方式，避免惡語傷人。",
-        "health": "容易因為情緒波動而影響健康，如出現上火、口腔潰瘍等問題。注意控制情緒，保持心情平和。也要注意飲食，避免辛辣刺激的食物。",
-        "wealth": "偏財運不佳，容易因為口舌是非或人際關係問題而破財。投資方面容易因聽信小道消息而做出錯誤決策，導致損失。切記不要輕易相信他人的投資建議，謹防詐騙。"
-      },
-      "小吉": {
-        "career": "事業發展平穩順利，能達成既定目標，並獲得一些小的成就或回報。適合按部就班地工作，穩紮穩打。人際關係良好，能得到同事或貴人的幫助。",
-        "love": "感情關係穩定和諧，雖然沒有太大的驚喜，但能感受到溫馨和幸福。單身者可能有機會認識新的朋友，但發展成戀人的機會不大。已婚或有伴侶者感情平淡而長久。",
-        "health": "身體狀況大致良好，小病小痛很快就能恢復。注意保持健康的生活習慣即可。",
-        "wealth": "偏財運平平，偶爾可能會有一些小的意外之財，但金額不大。投資方面宜選擇穩健的項目，不宜過於激進。整體而言，偏財運屬於穩定的小收益，不會有太大的驚喜。"
-      },
-      "空亡": {
-        "career": "事業運勢低迷，所規劃的事項可能難以實現，努力付出可能沒有預期的回報。不適合進行大的投資或變動。若有合作或交易，需謹防空穴來風或虛假承諾。",
-        "love": "感情方面可能沒有結果，單身者難以遇到合適的對象，即使遇到也可能無疾而終。已婚或有伴侶者感情可能趨於平淡或冷淡，缺乏激情。",
-        "health": "身體狀況欠佳，容易感到疲憊、精神不振。抵抗力下降，容易生病。若有疾病，可能治療效果不佳或病情反覆。需特別注意休息和調養。",
-        "wealth": "偏財運極差，幾乎沒有意外之財的機會。投資方面非常不利，容易血本無歸。切記不要抱有僥倖心理，避免任何投機行為。此時宜將重心放在正財上，努力工作才是正道。"
+      en: {
+        "大安": {
+          "career": "Work is stable and smooth with new opportunities or partners. Suitable for long-term planning and steady investment. Job seekers may obtain satisfying positions.",
+          "love": "Relationships are stable and harmonious. Singles may meet someone worth pursuing; couples grow closer. Good for marriage plans.",
+          "health": "Health is good and energy high. Old illnesses tend to stabilize or improve. Maintain regular routines and healthy diet.",
+          "wealth": "Good windfall luck with unexpected small income such as prizes or bonuses. Try steady investments for profit and avoid greed."
+        },
+        "留連": {
+          "career": "Work progresses slowly with obstacles. Trouble from others or competition may arise. Act conservatively and consider decisions carefully.",
+          "love": "Relationships stagnate with little progress. Singles find breakthroughs difficult and couples may feel distant. Communicate patiently.",
+          "health": "Minor issues like fatigue may occur. Rest well and avoid overwork. Old ailments might flare up.",
+          "wealth": "Poor luck in windfalls. Avoid speculative behavior and high-risk investments. Focus on regular earnings instead of quick money."
+        },
+        "速喜": {
+          "career": "Career develops rapidly with unexpected opportunities. Great time to expand and try new things. Interviews or proposals tend to succeed.",
+          "love": "Relationships move quickly. Singles easily meet desirable partners; couples enjoy sweetness and surprises.",
+          "health": "Good health and abundant energy. Minor illnesses heal fast but do not ignore your body from excitement.",
+          "wealth": "Extremely strong luck for sudden wealth such as big wins. Sharp investment vision allows gains; seize chances but know when to stop."
+        },
+        "赤口": {
+          "career": "Disputes or misunderstandings may arise at work. Relations tense; avoid arguments and think twice before making decisions.",
+          "love": "Prone to quarrels or distrust in relationships. Singles may meet undesirable matches or face gossip. Couples should communicate carefully.",
+          "health": "Emotional fluctuations may cause issues like mouth ulcers. Keep calm and watch your diet.",
+          "wealth": "Poor windfall luck; may lose money through arguments or bad advice. Be wary of hearsay in investments."
+        },
+        "小吉": {
+          "career": "Business proceeds smoothly achieving goals with small gains. Work steadily and rely on help from colleagues or benefactors.",
+          "love": "Relationships are peaceful though not passionate. Singles may make new friends but romance is unlikely; couples remain calm and lasting.",
+          "health": "Generally good health with quick recovery from minor ailments. Maintain healthy habits.",
+          "wealth": "Average luck with occasional small surprises. Choose conservative investments for steady small returns."
+        },
+        "空亡": {
+          "career": "Low fortune; plans hard to realize and efforts may fail. Avoid major investments and beware empty promises.",
+          "love": "Relationships may yield no result. Singles struggle to meet suitable partners; couples may become cold or passionless.",
+          "health": "Poor condition with fatigue and low spirit. Treatments may not work well; rest and recuperate.",
+          "wealth": "Very bad chance of windfall. Investments likely to lose money. Do not gamble; focus on regular income."
+        }
       }
     };
 
     const advancedDesc = {
-      "大安+大安": "(研究資料中未明確提供解釋，但可推斷為極為吉祥、安定，諸事順利，可能暗示著事情的發展將會非常平穩，沒有波折)。",
-      "大安+留連": "辦事可能不夠周全，遺失物品可能在西北方，婚姻之事會有所延遲 。若問尋找失物，則在中午時於南方尋找可能較易找到 。",
-      "大安+速喜": "事情需要自己主動爭取，遺失物品當天可見，婚姻之事也需自己主動提出 。若問尋找失物，則在早晨於東南方尋找可能較易找到 。",
-      "大安+赤口": "辦事不太順利，遺失物品不必尋找，婚姻關係可能破裂 。若問尋找失物，則在下午於西南方尋找可能較易找到 。",
-      "大安+小吉": "事情會朝好的方向發展，遺失物品不會出門太遠，婚姻之事可成 。若問尋找失物，則在晚上於東方尋找可能較易找到 。",
-      "大安+空亡": "(研究資料中未明確提供解釋)。若問尋找失物，則在半夜尋找困難，方位不定 。",
-      "留連+大安": "辦事可能需要分開進行，婚姻方面會有喜事，但過程可能先苦後甘 。若問尋找失物，則在上午於北方尋找可能較易找到 。",
-      "留連+留連": "(研究資料中未明確提供解釋)。若問尋找失物，則在傍晚於西方尋找可能較易找到 。",
-      "留連+速喜": "事情需要自己努力，婚姻方面有成功的意願，遺失物品在三天內可尋回 。若問尋找失物，則在黃昏於東南方尋找可能較易找到 。",
-      "留連+赤口": "病人可能會有生命危險，遺失物品難以找回，婚姻關係可能破裂 。若問尋找失物，則在深夜於西南方尋找可能較易找到 。",
-      "留連+小吉": "事情不必多提，遺失物品可能在東南方，病人有望康復 。若問尋找失物，則在午夜於東方尋找可能較易找到 。",
-      "留連+空亡": "病人可能會有生命危險，遺失物品難以尋獲，婚姻關係可能破裂 。若問尋找失物，則在日出之前尋找困難，方位不定 。",
-      "速喜+大安": "諸事平安順利，婚姻美滿，疾病可安然度過 。若問尋找失物，則在早晨於東方尋找可能較易找到 。",
-      "速喜+留連": "(研究資料中未明確提供解釋)。若問尋找失物，則在傍晚於西方尋找可能較易找到 。",
-      "速喜+速喜": "(研究資料中未明確提供解釋)。若問尋找失物，則在晚上於南方尋找可能較易找到 。",
-      "速喜+赤口": "需要自己主動出擊，遺失物品可能在正北方，婚姻需要積極爭取 。若問尋找失物，則在午夜於西南方尋找可能較易找到 。",
-      "速喜+小吉": "婚姻方面會有人提親，病人當天可能好轉，遺失物品在家中 。若問尋找失物，則在清晨於東方尋找可能較易找到 。",
-      "速喜+空亡": "婚姻可能會有變故，病人需要積極治療，遺失物品不久可見 。若問尋找失物，則在白天尋找困難，方位不定 。",
-      "赤口+大安": "辦事可能充滿風險與困難，遺失物品可能在東北方，婚姻難以成功 。若問尋找失物，則在中午於北方尋找可能較易找到 。",
-      "赤口+留連": "辦事會有困難，遠行之人尚未歸來，遺失物品難以找回 。若問尋找失物，則在黃昏於西方尋找可能較易找到 。",
-      "赤口+速喜": "(研究資料中未明確提供解釋)。若問尋找失物，則在晚上於東南方尋找可能較易找到 。",
-      "赤口+赤口": "(研究資料中未明確提供解釋)。若問尋找失物，則在深夜於南方尋找可能較易找到 。",
-      "赤口+小吉": "需要自己主動提出，婚姻難以成功，沒有遺失物品的消息 。若問尋找失物，則在黎明於東方尋找可能較易找到 。",
-      "赤口+空亡": "即使沒有生病也可能臥床不起，遺失物品不必尋找，婚姻難以成功 。若問尋找失物，則在日出時尋找困難，方位不定 。",
-      "小吉+大安": "諸事順遂圓滿，婚姻當天可定，遺失物品是自己不慎遺失 。若問尋找失物，則在上午於北方尋找可能較易找到 。",
-      "小吉+留連": "事情可能有反覆，婚姻可能有人破壞，遺失物品在西南方 。若問尋找失物，則在中午於西方尋找可能較易找到 。",
-      "小吉+速喜": "事情可以重新開始，婚姻能夠成功，遺失物品在院子裡 。若問尋找失物，則在下午於東南方尋找可能較易找到 。",
-      "小吉+赤口": "需要自己主動提出，婚姻難以成功，沒有遺失物品的消息 。若問尋找失物，則在黃昏於西南方尋找可能較易找到 。",
-      "小吉+小吉": "(研究資料中未明確提供解釋)。若問尋找失物，則在晚上於南方尋找可能較易找到 。",
-      "小吉+空亡": "病人情況不妙，遺失物品可能在正東方，婚姻之事需要再三考慮 。若問尋找失物，則在夜晚尋找困難，方位不定 。",
-      "空亡+大安": "事情可能不夠周全，婚姻有望和好，遺失物品反覆出現 。若問尋找失物，則在清晨於東方尋找可能較易找到 。",
-      "空亡+留連": "辦事處處受阻，婚姻需要重新決定，遺失物品永遠無法找回 。若問尋找失物，則在黎明於西方尋找可能較易找到 。",
-      "空亡+速喜": "事情多是自己的過失，婚姻有成功的可能，遺失物品在家中 。若問尋找失物，則在日出時於東南方尋找可能較易找到 。",
-      "空亡+赤口": "辦事可能會有官司是非，婚姻難以確定，遺失物品可能往遠處去了 。若問尋找失物，則在上午於西南方尋找可能較易找到 。",
-      "空亡+小吉": "(研究資料中未明確提供解釋)。若問尋找失物，則在中午於東方尋找可能較易找到 。",
-      "空亡+空亡": "(研究資料中未明確提供解釋)。若問尋找失物，則在白天尋找非常困難，方位不定 。"
+      zh: {
+        "大安+大安": "(研究資料中未明確提供解釋，但可推斷為極為吉祥、安定，諸事順利，可能暗示著事情的發展將會非常平穩，沒有波折)。",
+        "大安+留連": "辦事可能不夠周全，遺失物品可能在西北方，婚姻之事會有所延遲 。若問尋找失物，則在中午時於南方尋找可能較易找到 。",
+        "大安+速喜": "事情需要自己主動爭取，遺失物品當天可見，婚姻之事也需自己主動提出 。若問尋找失物，則在早晨於東南方尋找可能較易找到 。",
+        "大安+赤口": "辦事不太順利，遺失物品不必尋找，婚姻關係可能破裂 。若問尋找失物，則在下午於西南方尋找可能較易找到 。",
+        "大安+小吉": "事情會朝好的方向發展，遺失物品不會出門太遠，婚姻之事可成 。若問尋找失物，則在晚上於東方尋找可能較易找到 。",
+        "大安+空亡": "(研究資料中未明確提供解釋)。若問尋找失物，則在半夜尋找困難，方位不定 。",
+        "留連+大安": "辦事可能需要分開進行，婚姻方面會有喜事，但過程可能先苦後甘 。若問尋找失物，則在上午於北方尋找可能較易找到 。",
+        "留連+留連": "(研究資料中未明確提供解釋)。若問尋找失物，則在傍晚於西方尋找可能較易找到 。",
+        "留連+速喜": "事情需要自己努力，婚姻方面有成功的意願，遺失物品在三天內可尋回 。若問尋找失物，則在黃昏於東南方尋找可能較易找到 。",
+        "留連+赤口": "病人可能會有生命危險，遺失物品難以找回，婚姻關係可能破裂 。若問尋找失物，則在深夜於西南方尋找可能較易找到 。",
+        "留連+小吉": "事情不必多提，遺失物品可能在東南方，病人有望康復 。若問尋找失物，則在午夜於東方尋找可能較易找到 。",
+        "留連+空亡": "病人可能會有生命危險，遺失物品難以尋獲，婚姻關係可能破裂 。若問尋找失物，則在日出之前尋找困難，方位不定 。",
+        "速喜+大安": "諸事平安順利，婚姻美滿，疾病可安然度過 。若問尋找失物，則在早晨於東方尋找可能較易找到 。",
+        "速喜+留連": "(研究資料中未明確提供解釋)。若問尋找失物，則在傍晚於西方尋找可能較易找到 。",
+        "速喜+速喜": "(研究資料中未明確提供解釋)。若問尋找失物，則在晚上於南方尋找可能較易找到 。",
+        "速喜+赤口": "需要自己主動出擊，遺失物品可能在正北方，婚姻需要積極爭取 。若問尋找失物，則在午夜於西南方尋找可能較易找到 。",
+        "速喜+小吉": "婚姻方面會有人提親，病人當天可能好轉，遺失物品在家中 。若問尋找失物，則在清晨於東方尋找可能較易找到 。",
+        "速喜+空亡": "婚姻可能會有變故，病人需要積極治療，遺失物品不久可見 。若問尋找失物，則在白天尋找困難，方位不定 。",
+        "赤口+大安": "辦事可能充滿風險與困難，遺失物品可能在東北方，婚姻難以成功 。若問尋找失物，則在中午於北方尋找可能較易找到 。",
+        "赤口+留連": "辦事會有困難，遠行之人尚未歸來，遺失物品難以找回 。若問尋找失物，則在黃昏於西方尋找可能較易找到 。",
+        "赤口+速喜": "(研究資料中未明確提供解釋)。若問尋找失物，則在晚上於東南方尋找可能較易找到 。",
+        "赤口+赤口": "(研究資料中未明確提供解釋)。若問尋找失物，則在深夜於南方尋找可能較易找到 。",
+        "赤口+小吉": "需要自己主動提出，婚姻難以成功，沒有遺失物品的消息 。若問尋找失物，則在黎明於東方尋找可能較易找到 。",
+        "赤口+空亡": "即使沒有生病也可能臥床不起，遺失物品不必尋找，婚姻難以成功 。若問尋找失物，則在日出時尋找困難，方位不定 。",
+        "小吉+大安": "諸事順遂圓滿，婚姻當天可定，遺失物品是自己不慎遺失 。若問尋找失物，則在上午於北方尋找可能較易找到 。",
+        "小吉+留連": "事情可能有反覆，婚姻可能有人破壞，遺失物品在西南方 。若問尋找失物，則在中午於西方尋找可能較易找到 。",
+        "小吉+速喜": "事情可以重新開始，婚姻能夠成功，遺失物品在院子裡 。若問尋找失物，則在下午於東南方尋找可能較易找到 。",
+        "小吉+赤口": "需要自己主動提出，婚姻難以成功，沒有遺失物品的消息 。若問尋找失物，則在黃昏於西南方尋找可能較易找到 。",
+        "小吉+小吉": "(研究資料中未明確提供解釋)。若問尋找失物，則在晚上於南方尋找可能較易找到 。",
+        "小吉+空亡": "病人情況不妙，遺失物品可能在正東方，婚姻之事需要再三考慮 。若問尋找失物，則在夜晚尋找困難，方位不定 。",
+        "空亡+大安": "事情可能不夠周全，婚姻有望和好，遺失物品反覆出現 。若問尋找失物，則在清晨於東方尋找可能較易找到 。",
+        "空亡+留連": "辦事處處受阻，婚姻需要重新決定，遺失物品永遠無法找回 。若問尋找失物，則在黎明於西方尋找可能較易找到 。",
+        "空亡+速喜": "事情多是自己的過失，婚姻有成功的可能，遺失物品在家中 。若問尋找失物，則在日出時於東南方尋找可能較易找到 。",
+        "空亡+赤口": "辦事可能會有官司是非，婚姻難以確定，遺失物品可能往遠處去了 。若問尋找失物，則在上午於西南方尋找可能較易找到 。",
+        "空亡+小吉": "(研究資料中未明確提供解釋)。若問尋找失物，則在中午於東方尋找可能較易找到 。",
+        "空亡+空亡": "(研究資料中未明確提供解釋)。若問尋找失物，則在白天尋找非常困難，方位不定 。"
+      },
+      en: {
+        "大安+大安": "(No specific explanation, likely extremely auspicious and stable with smooth development.)",
+        "大安+留連": "Matters may be incomplete; lost item likely northwest; marriage delayed. Search south at noon.",
+        "大安+速喜": "Need to strive for it yourself; lost item appears the same day; marriage also requires initiative. Search southeast in the morning.",
+        "大安+赤口": "Things go poorly; lost item not worth searching; marriage may break. Search southwest in the afternoon.",
+        "大安+小吉": "Things turn better; lost item not far; marriage can succeed. Search east at night.",
+        "大安+空亡": "(No explanation. Searching at midnight is difficult with no direction.)",
+        "留連+大安": "May need to handle separately; marriage joyful after hardship. Search north in the morning.",
+        "留連+留連": "(No explanation. Search west at dusk.)",
+        "留連+速喜": "Need personal effort; marriage likely succeeds; lost item found within three days. Search southeast at dusk.",
+        "留連+赤口": "Patient may be in danger; lost item hard to find; marriage may break. Search southwest late at night.",
+        "留連+小吉": "No need to say much; lost item in southeast; patient expected to recover. Search east at midnight.",
+        "留連+空亡": "Patient may be in danger; lost item unlikely found; marriage may break. Searching before dawn is difficult with no direction.",
+        "速喜+大安": "Everything smooth; marriage happy; illness passes safely. Search east in the morning.",
+        "速喜+留連": "(No explanation. Search west at dusk.)",
+        "速喜+速喜": "(No explanation. Search south at night.)",
+        "速喜+赤口": "Must take initiative; lost item perhaps north; marriage requires active pursuit. Search southwest at midnight.",
+        "速喜+小吉": "Marriage proposals may come; patient improves; lost item at home. Search east at dawn.",
+        "速喜+空亡": "Marriage may change; patient needs active treatment; lost item soon seen. Day searches difficult with no direction.",
+        "赤口+大安": "Risky and difficult; lost item northeast; marriage unlikely. Search north at noon.",
+        "赤口+留連": "Things difficult; traveler not yet back; lost item hard to retrieve. Search west at dusk.",
+        "赤口+速喜": "(No explanation. Search southeast at night.)",
+        "赤口+赤口": "(No explanation. Search south late at night.)",
+        "赤口+小吉": "Need to propose yourself; marriage unlikely; no news on lost item. Search east at dawn.",
+        "赤口+空亡": "Even if not sick may end up bedridden; lost item not worth searching; marriage unlikely. Search at sunrise with no direction.",
+        "小吉+大安": "Everything smooth and complete; marriage can be settled that day; lost item misplaced. Search north in morning.",
+        "小吉+留連": "Situation may repeat; marriage may be sabotaged; lost item southwest. Search west at noon.",
+        "小吉+速喜": "Things can restart; marriage can succeed; lost item in the yard. Search southeast in afternoon.",
+        "小吉+赤口": "Need initiative; marriage unlikely; no news about lost item. Search southwest at dusk.",
+        "小吉+小吉": "(No explanation. Search south at night.)",
+        "小吉+空亡": "Patient not well; lost item east; marriage must be reconsidered. Night searches hard with no direction.",
+        "空亡+大安": "Matters incomplete; marriage may reconcile; lost item reappears. Search east at dawn.",
+        "空亡+留連": "Obstacles everywhere; marriage needs new decision; lost item never found. Search west at dawn.",
+        "空亡+速喜": "Mostly your own fault; marriage might succeed; lost item at home. Search southeast at sunrise.",
+        "空亡+赤口": "May involve lawsuits; marriage uncertain; lost item may have gone far. Search southwest in morning.",
+        "空亡+小吉": "(No explanation. Search east at noon.)",
+        "空亡+空亡": "(No explanation. Daytime searches extremely difficult with no direction.)"
+      }
     };
     
     // 根據目前系統時間，計算所屬的中國時辰（返回 1～12）
@@ -293,13 +508,14 @@
       ul.innerHTML = '';
       list.forEach(item => {
         const li = document.createElement('li');
-        li.textContent = '[' + item.time + '] 模式:' + item.mode + ' 結果:' + item.result + ' - ' + item.explanation;
+        li.textContent = '[' + item.time + '] ' + i18n[currentLang].modeLabel.replace('：','') + item.mode + ' ' + i18n[currentLang].resultPrefix + item.result + ' - ' + item.explanation;
         ul.appendChild(li);
       });
     }
 
     // 當網頁載入完成後，自動帶入預設值
     document.addEventListener("DOMContentLoaded", function() {
+      applyLanguage(currentLang);
       const today = new Date();
 
       // 使用 Lunar-Solar-Calendar-Converter 轉換國曆到農曆
@@ -336,7 +552,7 @@
       document.getElementById('copyBtn').addEventListener('click', function() {
         const text = document.getElementById('result').innerText;
         navigator.clipboard.writeText(text).then(function(){
-          alert('已複製到剪貼簿');
+          alert(i18n[currentLang].copied);
         });
       });
     });
@@ -352,7 +568,7 @@
       const qType = document.getElementById("questionType").value;
 
       if (isNaN(month) || isNaN(day) || isNaN(hourIndex)) {
-        alert("請完整填寫所有欄位！");
+        alert(i18n[currentLang].fillAlert);
         return;
       }
 
@@ -373,27 +589,27 @@
       let explanation = "";
 
       if (mode === "simple") {
-        explanation = simpleDesc[resultText];
-        resultDiv.innerHTML = "占卜結果：" + resultText + "<br>" + explanation;
+        explanation = simpleDesc[currentLang][resultText];
+        resultDiv.innerHTML = i18n[currentLang].resultPrefix + resultText + "<br>" + explanation;
       } else if (mode === "question") {
         if (!qType) {
-          alert("請選擇所問問題類型");
+          alert(i18n[currentLang].selectAlert);
           return;
         }
-        explanation = questionDesc[resultText][qType];
-        resultDiv.innerHTML = "占卜結果：" + resultText + "<br>" + explanation;
+        explanation = questionDesc[currentLang][resultText][qType];
+        resultDiv.innerHTML = i18n[currentLang].resultPrefix + resultText + "<br>" + explanation;
       } else {
         const firstIndex = (monthIndex + (day - 1)) % 6;
         const firstText = cycle[firstIndex];
         const key = firstText + "+" + resultText;
-        explanation = advancedDesc[key] || "";
-        resultDiv.innerHTML = "初始：" + firstText + "，當下：" + resultText + "<br>" + explanation;
+        explanation = advancedDesc[currentLang][key] || "";
+        resultDiv.innerHTML = i18n[currentLang].initialPrefix + firstText + i18n[currentLang].currentPrefix + resultText + "<br>" + explanation;
       }
 
       const modeLabels = {
-        simple: '簡答',
-        question: '問事',
-        advanced: '深解'
+        simple: i18n[currentLang].modeSimple,
+        question: i18n[currentLang].modeQuestion,
+        advanced: i18n[currentLang].modeAdvanced
       };
 
       const record = {
