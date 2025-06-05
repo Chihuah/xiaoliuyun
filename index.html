@@ -65,6 +65,15 @@
       border: 2px dashed #d9534f;
       border-radius: 4px;
     }
+    .disclaimer {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #777;
+      text-align: center;
+    }
+    footer {
+      margin-top: 20px;
+    }
   </style>
   <!-- 載入從 https://github.com/isee15/Lunar-Solar-Calendar-Converter 所下載的 lunar-solar-converter.js -->
   <script src="LunarSolarConverter.js"></script>
@@ -116,6 +125,9 @@
       <button type="submit">測算占卜</button>
     </form>
     <div id="result" class="result" style="display:none;"></div>
+    <footer>
+      <p class="disclaimer">此占卜結果僅供參考或娛樂使用，請勿過度依賴或迷信。</p>
+    </footer>
   </div>
 
   <script>

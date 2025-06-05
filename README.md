@@ -32,6 +32,10 @@
 4. [小六壬占卜法的源流、原理與現代詮釋 (Perplexity Deep Research)](https://www.perplexity.ai/search/qing-yan-jiu-yi-zhong-xuan-xue-aOENdRW_Q4yWG9HcwJZB5Q)
 5. [倪海廈，如何占卜 (Youtube)](https://www.youtube.com/watch?v=1KYhDGldkt4&t=48s)
 
+## 免責聲明
+
+此占卜結果僅供參考或娛樂使用，請勿過度依賴或迷信。
+
 ## 貢獻
 
 歡迎對此專案提出建議或改進。如有疑問，請在 GitHub 上提交 Issue 或 Pull Request。
