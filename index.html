@@ -118,7 +118,6 @@
     <div id="result" class="result" style="display:none;"></div>
     <div id="actions" style="display:none; text-align:center; margin-top:10px;">
       <button id="copyBtn" type="button">複製結果</button>
-      <button id="shareBtn" type="button">分享結果</button>
     </div>
     <div id="historySection" style="margin-top:20px;">
       <h2 style="text-align:center;">近期紀錄</h2>
@@ -333,17 +332,6 @@
           alert('已複製到剪貼簿');
         });
       });
-
-      document.getElementById('shareBtn').addEventListener('click', function() {
-        const text = document.getElementById('result').innerText;
-        if (navigator.share) {
-          navigator.share({title: '小六壬占卜結果', text: text});
-        } else {
-          navigator.clipboard.writeText(text).then(function(){
-            alert('已複製到剪貼簿');
-          });
-        }
-      });
     });
 
     document.getElementById("divinationForm").addEventListener("submit", function(e) {
@@ -395,8 +383,14 @@
         resultDiv.innerHTML = "初始：" + firstText + "，當下：" + resultText + "<br>" + explanation;
       }
 
+      const modeLabels = {
+        simple: '簡答',
+        question: '問事',
+        advanced: '深解'
+      };
+
       const record = {
-        mode: mode,
+        mode: modeLabels[mode] || mode,
         time: new Date().toLocaleString(),
         result: resultText,
         explanation: explanation
