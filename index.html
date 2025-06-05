@@ -116,6 +116,14 @@
       <button type="submit">測算占卜</button>
     </form>
     <div id="result" class="result" style="display:none;"></div>
+    <div id="actions" style="display:none; text-align:center; margin-top:10px;">
+      <button id="copyBtn" type="button">複製結果</button>
+      <button id="shareBtn" type="button">分享結果</button>
+    </div>
+    <div id="historySection" style="margin-top:20px;">
+      <h2 style="text-align:center;">近期紀錄</h2>
+      <ul id="historyList" style="padding-left:20px;"></ul>
+    </div>
   </div>
 
   <script>
@@ -263,6 +271,27 @@
       else if (h >= 21 && h < 23) return 12;
     }
 
+    function loadHistory() {
+      const data = localStorage.getItem('divinationHistory');
+      return data ? JSON.parse(data) : [];
+    }
+
+    function saveHistory(list) {
+      localStorage.setItem('divinationHistory', JSON.stringify(list));
+    }
+
+    function renderHistory() {
+      const list = loadHistory();
+      const ul = document.getElementById('historyList');
+      if (!ul) return;
+      ul.innerHTML = '';
+      list.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = '[' + item.time + '] 模式:' + item.mode + ' 結果:' + item.result + ' - ' + item.explanation;
+        ul.appendChild(li);
+      });
+    }
+
     // 當網頁載入完成後，自動帶入預設值
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
@@ -296,6 +325,25 @@
       });
 
       modeSelect.dispatchEvent(new Event('change'));
+      renderHistory();
+
+      document.getElementById('copyBtn').addEventListener('click', function() {
+        const text = document.getElementById('result').innerText;
+        navigator.clipboard.writeText(text).then(function(){
+          alert('已複製到剪貼簿');
+        });
+      });
+
+      document.getElementById('shareBtn').addEventListener('click', function() {
+        const text = document.getElementById('result').innerText;
+        if (navigator.share) {
+          navigator.share({title: '小六壬占卜結果', text: text});
+        } else {
+          navigator.clipboard.writeText(text).then(function(){
+            alert('已複製到剪貼簿');
+          });
+        }
+      });
     });
 
     document.getElementById("divinationForm").addEventListener("submit", function(e) {
@@ -325,22 +373,39 @@
       const resultText = cycle[resultIndex];
       const resultDiv = document.getElementById("result");
       resultDiv.style.display = "block";
+      document.getElementById("actions").style.display = "block";
+
+      let explanation = "";
 
       if (mode === "simple") {
-        resultDiv.innerHTML = "占卜結果：" + resultText + "<br>" + simpleDesc[resultText];
+        explanation = simpleDesc[resultText];
+        resultDiv.innerHTML = "占卜結果：" + resultText + "<br>" + explanation;
       } else if (mode === "question") {
         if (!qType) {
           alert("請選擇所問問題類型");
           return;
         }
-        resultDiv.innerHTML = "占卜結果：" + resultText + "<br>" + questionDesc[resultText][qType];
+        explanation = questionDesc[resultText][qType];
+        resultDiv.innerHTML = "占卜結果：" + resultText + "<br>" + explanation;
       } else {
         const firstIndex = (monthIndex + (day - 1)) % 6;
         const firstText = cycle[firstIndex];
         const key = firstText + "+" + resultText;
-        const explanation = advancedDesc[key] || "";
+        explanation = advancedDesc[key] || "";
         resultDiv.innerHTML = "初始：" + firstText + "，當下：" + resultText + "<br>" + explanation;
       }
+
+      const record = {
+        mode: mode,
+        time: new Date().toLocaleString(),
+        result: resultText,
+        explanation: explanation
+      };
+      let history = loadHistory();
+      history.unshift(record);
+      if (history.length > 5) history.pop();
+      saveHistory(history);
+      renderHistory();
     });
   </script>
 </body>
