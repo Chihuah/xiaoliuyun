@@ -71,6 +71,37 @@
       color: #777;
       text-align: center;
     }
+    /* 今日吉時速查 */
+    #todayHoursSection { margin-top: 24px; }
+    #todayHoursSection h2 { text-align: center; }
+    .hours-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    @media (max-width: 480px) {
+      .hours-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .hour-card {
+      padding: 10px 6px;
+      border-radius: 6px;
+      text-align: center;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+    .hour-card.auspicious {
+      background: #dff0d8; border-color: #3c763d; color: #3c763d;
+    }
+    .hour-card.inauspicious {
+      background: #f2dede; border-color: #a94442; color: #a94442;
+    }
+    .hour-card.current-hour {
+      border-width: 2px; font-weight: bold;
+    }
+    .hour-name { font-size: 18px; font-weight: bold; }
+    .hour-time { font-size: 11px; opacity: 0.8; margin: 2px 0; }
+    .hour-result { font-size: 15px; margin-top: 4px; }
   </style>
   <!-- 載入從 https://github.com/isee15/Lunar-Solar-Calendar-Converter 所下載的 lunar-solar-converter.js -->
   <script src="LunarSolarConverter.js"></script>
@@ -131,6 +162,10 @@
     <div id="actions" style="display:none; text-align:center; margin-top:10px;">
       <button id="copyBtn" type="button">複製結果</button>
     </div>
+    <div id="todayHoursSection" style="margin-top:24px;">
+      <h2 id="todayHoursTitle">今日吉時速查</h2>
+      <div id="todayHoursGrid" class="hours-grid"></div>
+    </div>
     <div id="historySection" style="margin-top:20px;">
       <h2 style="text-align:center;">近期紀錄</h2>
       <ul id="historyList" style="padding-left:20px;"></ul>
@@ -171,7 +206,8 @@
         solar: '國曆：',
         lunar: '農曆：',
         time: '當前時刻：',
-        leap: ' (閏月)'
+        leap: ' (閏月)',
+        todayHours: '今日吉時速查'
       },
       en: {
         title: 'Xiao Liu Ren Divination',
@@ -204,7 +240,8 @@
         solar: 'Solar:',
         lunar: 'Lunar:',
         time: 'Time:',
-        leap: ' (Leap)'
+        leap: ' (Leap)',
+        todayHours: "Today's Auspicious Hours"
       }
     };
 
@@ -239,7 +276,9 @@
       document.querySelector('.disclaimer').innerText = t.disclaimer;
       document.getElementById('langSelect').value = lang;
 
+      document.getElementById('todayHoursTitle').innerText = t.todayHours;
       renderHistory();
+      renderTodayHours();
       const resultDiv = document.getElementById('result');
       if (resultDiv.style.display === 'block') {
         document.getElementById('divinationForm').dispatchEvent(new Event('submit'));
@@ -513,6 +552,50 @@
       });
     }
 
+    function renderTodayHours() {
+      const month = parseInt(document.getElementById('lunarMonth').value);
+      const day   = parseInt(document.getElementById('lunarDay').value);
+      const grid  = document.getElementById('todayHoursGrid');
+      if (!month || !day || !grid) return;
+
+      const auspiciousSet = new Set(["大安", "速喜", "小吉"]);
+      const currentHIdx   = getChineseHourIndex(new Date());
+
+      const hours = [
+        { i: 1,  name: '子', range: '23:00-01:00' },
+        { i: 2,  name: '丑', range: '01:00-03:00' },
+        { i: 3,  name: '寅', range: '03:00-05:00' },
+        { i: 4,  name: '卯', range: '05:00-07:00' },
+        { i: 5,  name: '辰', range: '07:00-09:00' },
+        { i: 6,  name: '巳', range: '09:00-11:00' },
+        { i: 7,  name: '午', range: '11:00-13:00' },
+        { i: 8,  name: '未', range: '13:00-15:00' },
+        { i: 9,  name: '申', range: '15:00-17:00' },
+        { i: 10, name: '酉', range: '17:00-19:00' },
+        { i: 11, name: '戌', range: '19:00-21:00' },
+        { i: 12, name: '亥', range: '21:00-23:00' },
+      ];
+
+      grid.innerHTML = '';
+      hours.forEach(function(h) {
+        var mIdx   = (month - 1) % 6;
+        var dIdx   = (mIdx + (day - 1)) % 6;
+        var rIdx   = (dIdx + (h.i - 1)) % 6;
+        var result = cycle[rIdx];
+        var isCurrent = h.i === currentHIdx;
+
+        var card = document.createElement('div');
+        card.className = 'hour-card ' +
+          (auspiciousSet.has(result) ? 'auspicious' : 'inauspicious') +
+          (isCurrent ? ' current-hour' : '');
+        card.innerHTML =
+          '<div class="hour-name">' + (isCurrent ? '★ ' : '') + h.name + '</div>' +
+          '<div class="hour-time">' + h.range + '</div>' +
+          '<div class="hour-result">' + result + '</div>';
+        grid.appendChild(card);
+      });
+    }
+
     // 當網頁載入完成後，自動帶入預設值
     document.addEventListener("DOMContentLoaded", function() {
       applyLanguage(currentLang);
@@ -548,6 +631,10 @@
 
       modeSelect.dispatchEvent(new Event('change'));
       renderHistory();
+      renderTodayHours();
+
+      document.getElementById('lunarMonth').addEventListener('input', renderTodayHours);
+      document.getElementById('lunarDay').addEventListener('input', renderTodayHours);
 
       document.getElementById('copyBtn').addEventListener('click', function() {
         const text = document.getElementById('result').innerText;
