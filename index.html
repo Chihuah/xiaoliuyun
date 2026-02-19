@@ -71,6 +71,35 @@
       color: #777;
       text-align: center;
     }
+    /* 語言切換器 */
+    #langSwitcher {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .lang-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      background: #f0f8ff;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      color: #333;
+      margin-top: 0;
+      width: auto;
+    }
+    .lang-btn:hover {
+      background: #e0efff;
+      border-color: #007acc;
+    }
+    .lang-btn.active {
+      background: #007acc;
+      color: #fff;
+      border-color: #007acc;
+    }
     /* 今日吉時速查 */
     #todayHoursSection { margin-top: 24px; }
     #todayHoursSection h2 { text-align: center; }
@@ -109,11 +138,11 @@
 <body>
   <div class="container">
     <h1 id="pageTitle">小六壬占卜</h1>
-    <div style="text-align:right;">
-      <select id="langSelect" style="margin-bottom:10px;">
-        <option value="zh">中文</option>
-        <option value="en">English</option>
-      </select>
+    <div id="langSwitcher">
+      <button class="lang-btn" data-lang="zh">🇹🇼 繁中</button>
+      <button class="lang-btn" data-lang="en">🇺🇸 EN</button>
+      <button class="lang-btn" data-lang="ja">🇯🇵 日本語</button>
+      <button class="lang-btn" data-lang="ko">🇰🇷 한국어</button>
     </div>
     <!-- 目前日期與時間的顯示區塊 -->
     <div id="currentTimeDisplay" style="text-align: center; margin-bottom: 20px; font-size: 18px;"></div>
@@ -274,7 +303,9 @@
       document.getElementById('copyBtn').innerText = t.copy;
       document.querySelector('#historySection h2').innerText = t.history;
       document.querySelector('.disclaimer').innerText = t.disclaimer;
-      document.getElementById('langSelect').value = lang;
+      document.querySelectorAll('.lang-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
 
       document.getElementById('todayHoursTitle').innerText = t.todayHours;
       renderHistory();
@@ -285,8 +316,10 @@
       }
     }
 
-    document.getElementById('langSelect').addEventListener('change', function(){
-      applyLanguage(this.value);
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        applyLanguage(this.dataset.lang);
+      });
     });
 
     // 定義更新日期與時間的函式
@@ -314,15 +347,21 @@
       var lunarLeap = lunarObj.isleap ? " (閏月)" : "";
   
       // 組合顯示字串
+      var t = i18n[currentLang] || i18n.zh;
       var displayStr;
       if (currentLang === 'en') {
-        displayStr = i18n.en.solar + ' ' + solarYear + '-' + solarMonth + '-' + solarDay + '<br>' +
-                      i18n.en.lunar + ' ' + lunarYear + '-' + lunarMonth + '-' + lunarDay + (lunarLeap ? i18n.en.leap : '') + '<br>' +
-                      i18n.en.time + ' ' + formattedTime + '<br><hr>';
+        displayStr = t.solar + ' ' + solarYear + '-' + solarMonth + '-' + solarDay + '<br>' +
+                      t.lunar + ' ' + lunarYear + '-' + lunarMonth + '-' + lunarDay + (lunarLeap ? t.leap : '') + '<br>' +
+                      t.time + ' ' + formattedTime + '<br><hr>';
+      } else if (currentLang === 'ko') {
+        displayStr = t.solar + ' ' + solarYear + '년 ' + solarMonth + '월 ' + solarDay + '일' + '<br>' +
+                      t.lunar + ' ' + lunarYear + '년 ' + lunarMonth + '월 ' + lunarDay + '일' + (lunarLeap ? t.leap : '') + '<br>' +
+                      t.time + ' ' + formattedTime + '<br><hr>';
       } else {
-        displayStr = i18n.zh.solar + ' ' + solarYear + '年' + solarMonth + '月' + solarDay + '日' + '<br>' +
-                      i18n.zh.lunar + ' ' + lunarYear + '年' + lunarMonth + '月' + lunarDay + '日' + (lunarLeap ? i18n.zh.leap : '') + '<br>' +
-                      i18n.zh.time + ' ' + formattedTime + '<br><hr>';
+        // zh / ja: 年月日 format
+        displayStr = t.solar + ' ' + solarYear + '年' + solarMonth + '月' + solarDay + '日' + '<br>' +
+                      t.lunar + ' ' + lunarYear + '年' + lunarMonth + '月' + lunarDay + '日' + (lunarLeap ? t.leap : '') + '<br>' +
+                      t.time + ' ' + formattedTime + '<br><hr>';
       }
       document.getElementById("currentTimeDisplay").innerHTML = displayStr;
     }
